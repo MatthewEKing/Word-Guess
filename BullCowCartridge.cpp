@@ -7,6 +7,8 @@ void UBullCowCartridge::BeginPlay() // When the game starts
 {
     Super::BeginPlay();
 
+    FCharacterCount Count;
+
     Isograms = GetValidWords(Words);
 
     SetupGame();
@@ -80,6 +82,10 @@ void UBullCowCartridge::ProcessGuess(const FString& Guess)
         return;
     }
 
+    FCharacterCount Score = CheckCharactersAndPositions(Guess);
+    
+    PrintLine(TEXT("You Have %i in the right position and %i correct characters"), Score.CorrectPos, Score.CorrectChar);
+
     PrintLine(TEXT("Guess Again, you have %i lives left"), Lives);
 }
 
@@ -112,4 +118,28 @@ TArray<FString> UBullCowCartridge::GetValidWords(const TArray<FString>& WordList
         }
     }
     return ValidWords;
+}
+
+FCharacterCount UBullCowCartridge::CheckCharactersAndPositions(const FString& Guess) const
+{
+    FCharacterCount Count;
+
+    for (int32 GuessIndex = 0; GuessIndex < Guess.Len(); GuessIndex++)
+    {
+        if (Guess[GuessIndex] == HiddenWord[GuessIndex])
+        {
+            Count.CorrectPos++;
+            continue;
+        }
+
+        for (int32 HiddenIndex = 0; HiddenIndex < HiddenWord.Len(); HiddenIndex++)
+        {
+            if (Guess[GuessIndex] == HiddenWord[HiddenIndex])
+            {
+                Count.CorrectChar++;
+                break;
+            }
+        }
+    }
+    return Count;
 }
